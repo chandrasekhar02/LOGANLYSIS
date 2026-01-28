@@ -41,7 +41,7 @@ public class JourneyService {
                         )
                         .orElse(new CustomerJourneyEntity());
 
-        // 4. Map domain → entity
+
         entity.setCustomerId(journey.getCustomerId());
         entity.setCorrelationId(journey.getCorrelationId());
         entity.setJourneyStatus(journey.getFinalJourneyStatus());
@@ -52,7 +52,7 @@ public class JourneyService {
         entity.setJourneyStartedAt(journey.getJourneyStartedAt());
         entity.setJourneyCompletedAt(journey.getJourneyCompletedAt());
 
-        // 5. Save (upsert)
+        // 5. Save
         repository.save(entity);
 
         return journey;

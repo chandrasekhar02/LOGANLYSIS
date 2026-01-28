@@ -18,30 +18,44 @@ public class JourneySearchService {
         this.repository = repository;
     }
 
+    /**
+     * Search latest customer journey by customerId
+     */
     public JourneySearchResponse search(String customerId) {
+        CustomerJourneyEntity entity = fetchLatestJourney(customerId.trim());
+        return buildSearchResponse(entity);
+    }
 
-        CustomerJourneyEntity entity =
-                repository.findTopByCustomerIdOrderByJourneyCompletedAtDesc(customerId)
-                        .orElseThrow(() ->
-                                new JourneyNotFoundException(
-                                        "Journey not found for customerId=" + customerId
-                                )
-                        );
+    /**
+     * Fetch latest journey record for a customer
+     */
+    private CustomerJourneyEntity fetchLatestJourney(String customerId) {
+        return repository
+                .findTopByCustomerIdOrderByJourneyCompletedAtDesc(customerId)
+                .orElseThrow(() ->
+                        new JourneyNotFoundException(
+                                "Journey not found for customerId=" + customerId
+                        )
+                );
+    }
+
+    /**
+     * Build API response from journey entity
+     */
+    private JourneySearchResponse buildSearchResponse(CustomerJourneyEntity entity) {
 
         JourneySearchResponse response = new JourneySearchResponse();
         response.setCustomer_id(entity.getCustomerId());
         response.setJourney_status(entity.getJourneyStatus().name());
 
-        // Single failed stage (latest journey)
         JourneyStageDto stage = new JourneyStageDto(
-                entity.getFailedTransactionId(),   // ✅ TRANSACTION ID (NOT correlation)
+                entity.getFailedTransactionId(),   // transaction id
                 entity.getCurrentStep(),
                 entity.getJourneyCompletedAt(),
                 entity.getErrorCode()
         );
 
         response.setStages(List.of(stage));
-
         return response;
     }
 }
