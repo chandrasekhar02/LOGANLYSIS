@@ -15,4 +15,9 @@ public interface CustomerJourneyRepository
             String customerId,
             String correlationId
     );
+
+    Optional<CustomerJourneyEntity>
+    findTopByCustomerIdOrderByJourneyCompletedAtDesc(
+            String customerId
+    );
 }
